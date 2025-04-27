@@ -1,48 +1,37 @@
 Question 1
-SELECT OrderID, CustomerName, TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(Products, ',', n.n), ',', -1)) AS Product
+SQL query to split the Products column into individual rows for each product
+SELECT OrderID, CustomerName, 'Laptop' AS Product
 FROM ProductDetail
-INNER JOIN (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) n
-  ON CHAR_LENGTH(Products) - CHAR_LENGTH(REPLACE(Products, ',', '')) >= n.n - 1
-ORDER BY OrderID, n.n;
+WHERE Products LIKE '%Laptop%'
+UNION ALL
+SELECT OrderID, CustomerName, 'Mouse' AS Product
+FROM ProductDetail
+WHERE Products LIKE '%Mouse%'
+UNION ALL
+SELECT OrderID, CustomerName, 'Tablet' AS Product
+FROM ProductDetail
+WHERE Products LIKE '%Tablet%'
+UNION ALL
+SELECT OrderID, CustomerName, 'Keyboard' AS Product
+FROM ProductDetail
+WHERE Products LIKE '%Keyboard%'
+UNION ALL
+SELECT OrderID, CustomerName, 'Phone' AS Product
+FROM ProductDetail
+WHERE Products LIKE '%Phone%';
+
 Question 2
--- Create Orders table to store OrderID and CustomerName
-CREATE TABLE Orders (
-    OrderID INT PRIMARY KEY,
-    CustomerName VARCHAR(100)
-);
-
--- Insert data into Orders table
-INSERT INTO Orders (OrderID, CustomerName)
-SELECT DISTINCT OrderID, CustomerName
-FROM OrderDetails;
-
--- Create OrderDetails table to store OrderID, Product, and Quantity
-CREATE TABLE OrderDetails (
-    OrderID INT,
-    Product VARCHAR(100),
-    Quantity INT,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
-);
-
--- Insert data into OrderDetails table
-INSERT INTO OrderDetails (OrderID, Product, Quantity)
-SELECT OrderID, Product, Quantity
-FROM OrderDetails;
-Question 2
--- Create the Customer table to store OrderID and CustomerName
 CREATE TABLE Customer (
     OrderID INT PRIMARY KEY,
     CustomerName VARCHAR(100)
 );
 
--- Insert data into the Customer table
+-- Insert the unique CustomerName and OrderID data
 INSERT INTO Customer (OrderID, CustomerName)
 VALUES
     (101, 'John Doe'),
     (102, 'Jane Smith'),
     (103, 'Emily Clark');
-
--- Create the OrderDetails table to store OrderID, Product, and Quantity
 CREATE TABLE OrderDetails (
     OrderID INT,
     Product VARCHAR(100),
