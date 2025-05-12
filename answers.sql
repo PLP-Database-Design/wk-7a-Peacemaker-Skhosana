@@ -1,52 +1,61 @@
-Question 1
-SQL query to split the Products column into individual rows for each product
-SELECT OrderID, CustomerName, 'Laptop' AS Product
-FROM ProductDetail
-WHERE Products LIKE '%Laptop%'
-UNION ALL
-SELECT OrderID, CustomerName, 'Mouse' AS Product
-FROM ProductDetail
-WHERE Products LIKE '%Mouse%'
-UNION ALL
-SELECT OrderID, CustomerName, 'Tablet' AS Product
-FROM ProductDetail
-WHERE Products LIKE '%Tablet%'
-UNION ALL
-SELECT OrderID, CustomerName, 'Keyboard' AS Product
-FROM ProductDetail
-WHERE Products LIKE '%Keyboard%'
-UNION ALL
-SELECT OrderID, CustomerName, 'Phone' AS Product
-FROM ProductDetail
-WHERE Products LIKE '%Phone%';
 
-Question 2
-CREATE TABLE Customer (
-    OrderID INT PRIMARY KEY,
-    CustomerName VARCHAR(100)
-);
+sql
+-- Week 7 Assignment: Achieving 1NF and 2NF
 
--- Insert the unique CustomerName and OrderID data
-INSERT INTO Customer (OrderID, CustomerName)
-VALUES
-    (101, 'John Doe'),
-    (102, 'Jane Smith'),
-    (103, 'Emily Clark');
-CREATE TABLE OrderDetails (
+-- 🎯 Question 1: Achieving 1NF (First Normal Form)
+-- Step: Create ProductDetail table and insert rows where each product appears on a separate row (already normalized)
+
+CREATE TABLE ProductDetail (
     OrderID INT,
-    Product VARCHAR(100),
-    Quantity INT,
-    PRIMARY KEY (OrderID, Product),
-    FOREIGN KEY (OrderID) REFERENCES Customer(OrderID)
+    CustomerName VARCHAR(100),
+    Products VARCHAR(100)
 );
 
--- Insert data into the OrderDetails table
-INSERT INTO OrderDetails (OrderID, Product, Quantity)
+-- ✔️ This data now complies with 1NF (no multivalued attributes)
+INSERT INTO ProductDetail(OrderID, CustomerName, Products)
 VALUES
-    (101, 'Laptop', 2),
-    (101, 'Mouse', 1),
-    (102, 'Tablet', 3),
-    (102, 'Keyboard', 1),
-    (102, 'Mouse', 2),
-    (103, 'Phone', 1);
+(101, 'John Doe', 'Laptop'),
+(101, 'John Doe', 'Mouse'),
+(102, 'Jane Smith', 'Tablet'),
+(102, 'Jane Smith', 'Keyboard'),
+(102, 'Jane Smith', 'Mouse'),
+(103, 'Emily Clark', 'Phone');
+
+-- 🔍 Explanation:
+-- Each row now represents a single product per order, eliminating multi-valued fields.
+
+-- 🧩 Question 2: Achieving 2NF (Second Normal Form)
+-- Step 1: Create an 'orders' table with OrderID as the primary key and CustomerName
+-- CustomerName is moved to a separate table since it only depends on OrderID (not on the combination of OrderID and Product)
+
+CREATE TABLE orders(
+    OrderID INT PRIMARY KEY,
+    customerName VARCHAR(100)
+);
+
+INSERT INTO orders (OrderID, CustomerName)
+VALUES
+(101, 'John Doe'),
+(102, 'Jane Smith'),
+(103, 'Emily Clark');
+
+-- Step 2: Create a 'product' table that separates product-related data and references the order_id from orders table
+
+CREATE TABLE product(
+    product_id INT PRIMARY KEY,
+    productName VARCHAR(100),
+    quantity INT,
+    order_id INT,
+    FOREIGN KEY(order_id) REFERENCES orders(OrderID)
+);
+
+INSERT INTO product(product_id, productName, quantity, order_id)
+VALUES 
+(1, 'Laptop', 2, 101),
+(2, 'Mouse', 1, 101),
+(3, 'Tablet', 3, 102),
+(4, 'Keyboard', 2, 102),
+(5, 'Mouse', 1, 102),
+(6, 'Phone', 1, 103);
+
 
